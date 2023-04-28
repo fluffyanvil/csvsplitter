@@ -1,19 +1,21 @@
 import csv
 import argparse
+import os
 
 parser = argparse.ArgumentParser(description="Split csv grouped by specified column",
                                  formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-parser.add_argument("-c", "--column", type=int, help="column number (starts from 0, i.e. if you want split by 10th column, use 9)", default=9)
+parser.add_argument("-c", "--column", type=int, help="column number (starts from 1, i.e. if you want split by 10th column, use 10)", default=9)
 parser.add_argument("-f", "--file", help="input .csv file", required=True, default="test.csv")
 args = parser.parse_args()
 config = vars(args)
-print(config)
 
-column = args.column if args.column else 9
-file = args.file
+column = args.column-1 if args.column else 9
+path = args.file
+file =os.path.splitext(os.path.basename(path))[0]
+folder = os.path.dirname(path) 
 
 # Open the original CSV file
-with open(file) as csvfile:
+with open(path) as csvfile:
     csv_reader = csv.reader(csvfile, delimiter='|')
     
     # Find all unique values in the 10th column
@@ -33,7 +35,7 @@ with open(file) as csvfile:
         
     # Save each group of rows to a separate CSV file
     for value, rows in rows_by_value.items():
-        filename = f'test_{value}.csv'
+        filename = os.path.join(folder, f'{file}_{value}.csv')
         with open(filename, 'w', newline='') as outfile:
             csv_writer = csv.writer(outfile, delimiter='|')
             csv_writer.writerows(rows)
